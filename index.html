@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#085c33" />
+  <title>Ledermair Fahrer-Info</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-logo-wrap">
+      <img src="logo.png" alt="Ledermair Logo" class="brand-logo" />
+    </div>
+    <div>
+      <h1>Ledermair Fahrer-Info</h1>
+      <p>Reiseziele, Busparkplätze und Fahrerhinweise</p>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="toolbar" aria-label="Suche und Filter">
+      <input id="searchInput" type="search" placeholder="Ziel, Ort, Land, Kategorie oder Verfasser suchen …" autocomplete="off" />
+      <select id="categoryFilter">
+        <option value="">Alle Kategorien</option>
+      </select>
+      <select id="difficultyFilter">
+        <option value="">Alle Bewertungen</option>
+        <option value="gruen">Grün – problemlos</option>
+        <option value="gelb">Gelb – aufpassen</option>
+        <option value="rot">Rot – schwierig</option>
+      </select>
+      <button id="newEntryBtn" class="primary">+ Neues Ziel</button>
+    </section>
+
+    <section class="quick-actions">
+      <button data-category="Busparkplatz">Busparkplätze</button>
+      <button data-category="Hotel">Hotels</button>
+      <button data-category="Theater">Theater</button>
+      <button data-category="Sehenswürdigkeit">Sehenswürdigkeiten</button>
+      <button id="driversBtn">Fahrer verwalten</button>
+      <button id="exportBtn">Export</button>
+      <label class="import-label">
+        Import
+        <input id="importInput" type="file" accept="application/json" hidden />
+      </label>
+    </section>
+
+    <section id="entryList" class="entry-list" aria-live="polite"></section>
+  </main>
+
+  <dialog id="entryDialog">
+    <form id="entryForm" method="dialog">
+      <div class="dialog-head">
+        <h2 id="dialogTitle">Neues Ziel erfassen</h2>
+        <button type="button" id="closeDialogBtn" class="ghost">Schließen</button>
+      </div>
+
+      <input type="hidden" id="entryId" />
+
+      <div class="form-section">
+        <h3>Zieladresse</h3>
+        <div class="form-grid">
+          <label>Zielname *
+            <input id="name" required placeholder="z. B. Deutsches Theater München" />
+          </label>
+          <label>Kategorie *
+            <select id="category" required>
+              <option value="">Bitte wählen</option>
+              <option>Busparkplatz</option>
+              <option>Hotel</option>
+              <option>Theater</option>
+              <option>Sehenswürdigkeit</option>
+              <option>Flughafen</option>
+              <option>Restaurant</option>
+              <option>Messe</option>
+              <option>Schule</option>
+              <option>Stadtzentrum</option>
+              <option>Eventlocation</option>
+              <option>Sonstiges</option>
+            </select>
+          </label>
+          <label>Straße / Adresse
+            <input id="address" placeholder="Straße, Hausnummer" />
+          </label>
+          <label>PLZ
+            <input id="postalCode" inputmode="numeric" placeholder="z. B. 80336" />
+          </label>
+          <label>Ort *
+            <input id="cityName" required placeholder="z. B. München" />
+          </label>
+          <label>Land *
+            <select id="country" required>
+              <option>Österreich</option>
+              <option>Deutschland</option>
+              <option>Schweiz</option>
+              <option>Italien</option>
+              <option>Frankreich</option>
+              <option>Tschechien</option>
+              <option>Slowenien</option>
+              <option>Kroatien</option>
+              <option>Ungarn</option>
+              <option>Sonstiges</option>
+            </select>
+          </label>
+          <label>Navi-Link / Google Maps
+            <input id="mapsLink" type="url" placeholder="wird aus GPS oder Adresse erzeugt" />
+          </label>
+          <label>GPS Ziel
+            <input id="gps" readonly placeholder="Breitengrad, Längengrad" />
+          </label>
+        </div>
+        <div class="inline-actions">
+          <button type="button" id="lookupZipBtn">Ort aus PLZ holen</button>
+          <button type="button" id="makeMapsLinkBtn">Navi-Link aus Adresse erstellen</button>
+          <button type="button" id="captureGpsBtn">GPS vom Handy erfassen</button>
+          <button type="button" id="verifyAddressBtn">Adresse in Google Maps prüfen</button>
+        </div>
+        <p id="addressStatus" class="hint"></p>
+      </div>
+
+      <div class="form-section">
+        <h3>Busparkplatz und Zufahrt</h3>
+        <div class="form-grid">
+          <label>Busparkplatz Adresse
+            <input id="parkingAddress" placeholder="Adresse oder Beschreibung" />
+          </label>
+          <label>Busparkplatz Link
+            <input id="parkingLink" type="url" placeholder="wird aus GPS oder Adresse erzeugt" />
+          </label>
+          <label>GPS Busparkplatz
+            <input id="parkingGps" readonly placeholder="Breitengrad, Längengrad" />
+          </label>
+          <label>Gebühren Busparkplatz
+            <input id="parkingFees" placeholder="z. B. 25 €/Tag, Münzen, Karte, kostenlos" />
+          </label>
+          <label>Buchung Busparkplatz
+            <select id="bookingType">
+              <option value="unbekannt">Unbekannt</option>
+              <option value="vor_ort">Vor Ort</option>
+              <option value="online">Onlinebuchung</option>
+              <option value="telefonisch">Telefonisch</option>
+              <option value="nicht_noetig">Nicht nötig</option>
+            </select>
+          </label>
+          <label>Behindertengerecht
+            <select id="accessible">
+              <option value="unbekannt">Unbekannt</option>
+              <option value="ja">Ja</option>
+              <option value="teilweise">Teilweise</option>
+              <option value="nein">Nein</option>
+            </select>
+          </label>
+          <label>Zufahrtsbeschränkung
+            <select id="accessRestriction">
+              <option value="keine_bekannt">Keine bekannt</option>
+              <option value="innenstadt">Innenstadt</option>
+              <option value="umweltzone">Umweltzone</option>
+              <option value="enge_zufahrt">Enge Zufahrt</option>
+              <option value="hoehenbeschraenkung">Höhenbeschränkung</option>
+              <option value="gewichtsbeschraenkung">Gewichtsbeschränkung</option>
+              <option value="anmeldung_noetig">Anmeldung nötig</option>
+              <option value="sonstiges">Sonstiges</option>
+            </select>
+          </label>
+          <label>Schwierigkeit
+            <select id="difficulty">
+              <option value="gruen">Grün – problemlos</option>
+              <option value="gelb">Gelb – aufpassen</option>
+              <option value="rot">Rot – schwierig / Rücksprache</option>
+            </select>
+          </label>
+          <label class="wide">Details zur Zufahrtsbeschränkung
+            <textarea id="accessRestrictionDetails" rows="2" placeholder="z. B. Umweltplakette, Zufahrt nur über bestimmte Straße, Altstadt meiden …"></textarea>
+          </label>
+        </div>
+        <div class="inline-actions">
+          <button type="button" id="makeParkingLinkBtn">Parkplatz-Link aus Adresse erstellen</button>
+          <button type="button" id="captureParkingGpsBtn">GPS für Parkplatz erfassen</button>
+          <button type="button" id="verifyParkingBtn">Parkplatz in Google Maps prüfen</button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Praxisinfos</h3>
+        <div class="form-grid">
+          <label>Ausstieg / Einstieg Gäste
+            <input id="dropoff" placeholder="Kurzhaltezone, Treffpunkt, Eingang …" />
+          </label>
+          <label>Verfasser / Fahrer für Rückfragen *
+            <select id="authorDriverId" required>
+              <option value="">Bitte Fahrer auswählen</option>
+            </select>
+          </label>
+          <div class="driver-chip wide" id="selectedDriverInfo">Noch kein Fahrer ausgewählt.</div>
+          <label>Kontakt vor Ort
+            <input id="localContact" placeholder="Name, Telefon, E-Mail" />
+          </label>
+          <label class="wide">Fahrerhinweise
+            <div class="notes-with-actions">
+              <textarea id="driverNotes" rows="4" placeholder="Kurz, konkret, praxisnah: Zufahrt, Wenden, Wartezeit, Toiletten, Ansprechpartner …"></textarea>
+              <div class="notes-actions">
+                <button type="button" id="voiceDriverNotesBtn">🎤 Spracheingabe starten</button>
+                <span id="voiceStatus" class="hint compact">Spracheingabe bereit.</span>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Fotos</h3>
+        <p class="hint">Fotos von Einfahrt, Parkplatz, Schranke, Ausstiegspunkt oder Engstellen hochladen. In der Übersicht wird das erste Foto als Thumbnail angezeigt.</p>
+        <div class="photo-upload-row">
+          <label class="photo-upload">
+            Fotos hinzufügen
+            <input id="photoInput" type="file" accept="image/*" multiple hidden />
+          </label>
+          <button type="button" id="clearPhotosBtn" class="ghost">Alle Fotos entfernen</button>
+        </div>
+        <div id="photoPreview" class="photo-preview"></div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" id="deleteBtn" class="danger">Löschen</button>
+        <button type="submit" class="primary">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="driversDialog">
+    <div class="drivers-dialog-inner">
+      <div class="dialog-head">
+        <h2>Fahrer zentral pflegen</h2>
+        <button type="button" id="closeDriversDialogBtn" class="ghost">Schließen</button>
+      </div>
+      <div class="form-section">
+        <div class="form-grid drivers-grid">
+          <label>Name *
+            <input id="driverName" placeholder="z. B. Ömer Bülbül" />
+          </label>
+          <label>Handynummer *
+            <input id="driverPhone" placeholder="z. B. +43 664 1234567" />
+          </label>
+        </div>
+        <div class="inline-actions">
+          <button type="button" id="saveDriverBtn" class="primary">Fahrer speichern</button>
+          <button type="button" id="resetDriverBtn" class="ghost">Formular leeren</button>
+        </div>
+        <input type="hidden" id="driverId" />
+      </div>
+      <div class="form-section">
+        <h3>Gespeicherte Fahrer</h3>
+        <div id="driversList" class="drivers-list"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <template id="entryCardTemplate">
+    <article class="entry-card">
+      <div class="card-topline">
+        <span class="badge category"></span>
+        <span class="status-dot"></span>
+      </div>
+      <button class="card-photo" type="button" aria-label="Foto vergrößern">
+        <img alt="Foto zum Reiseziel" />
+      </button>
+      <h2></h2>
+      <p class="location"></p>
+      <p class="notes"></p>
+      <div class="meta-grid"></div>
+      <div class="card-actions">
+        <a class="maps" target="_blank" rel="noopener">Navi öffnen</a>
+        <a class="parking" target="_blank" rel="noopener">Busparkplatz</a>
+        <button class="edit">Bearbeiten</button>
+      </div>
+    </article>
+  </template>
+
+  <dialog id="photoDialog" class="photo-dialog">
+    <div class="photo-dialog-inner">
+      <div class="dialog-head">
+        <h2 id="photoDialogTitle">Foto</h2>
+        <button type="button" id="closePhotoDialogBtn" class="ghost">Schließen</button>
+      </div>
+      <img id="photoDialogImg" alt="Vergrößertes Foto" />
+      <div id="photoDialogCaption" class="hint"></div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
