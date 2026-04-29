@@ -10,9 +10,9 @@
 </head>
 <body>
   <header class="app-header">
-    <div class="brand-logo-wrap">
+    <button id="homeBtn" class="brand-logo-wrap home-button" type="button" aria-label="Startseite öffnen">
       <img src="logo.png" alt="Ledermair Logo" class="brand-logo" />
-    </div>
+    </button>
     <div>
       <h1>Ledermair Fahrer-Info</h1>
       <p>Reiseziele, Busparkplätze und Fahrerhinweise</p>
@@ -20,34 +20,49 @@
   </header>
 
   <main class="app-shell">
-    <section class="toolbar" aria-label="Suche und Filter">
-      <input id="searchInput" type="search" placeholder="Ziel, Ort, Land, Kategorie oder Verfasser suchen …" autocomplete="off" />
-      <select id="categoryFilter">
-        <option value="">Alle Kategorien</option>
-      </select>
-      <select id="difficultyFilter">
-        <option value="">Alle Bewertungen</option>
-        <option value="gruen">Grün – problemlos</option>
-        <option value="gelb">Gelb – aufpassen</option>
-        <option value="rot">Rot – schwierig</option>
-      </select>
-      <button id="newEntryBtn" class="primary">+ Neues Ziel</button>
+    <section id="homeScreen" class="home-screen">
+      <div class="home-card">
+        <img src="logo.png" alt="Ledermair Logo" class="home-logo" />
+        <h2>Fahrer-Info</h2>
+        <p>Reiseziele, Busparkplätze und Fahrerhinweise zentral erfassen und schnell wiederfinden.</p>
+        <div class="home-actions">
+          <button id="showSearchBtn" class="primary" type="button">Ziele suchen</button>
+          <button id="homeNewEntryBtn" type="button">+ Neues Ziel erfassen</button>
+          <button id="homeDriversBtn" type="button">Fahrer verwalten</button>
+        </div>
+      </div>
     </section>
 
-    <section class="quick-actions">
-      <button data-category="Busparkplatz">Busparkplätze</button>
-      <button data-category="Hotel">Hotels</button>
-      <button data-category="Theater">Theater</button>
-      <button data-category="Sehenswürdigkeit">Sehenswürdigkeiten</button>
-      <button id="driversBtn">Fahrer verwalten</button>
-      <button id="exportBtn">Export</button>
-      <label class="import-label">
-        Import
-        <input id="importInput" type="file" accept="application/json" hidden />
-      </label>
-    </section>
+    <section id="directoryScreen" class="directory-screen hidden">
+      <section class="toolbar" aria-label="Suche und Filter">
+        <input id="searchInput" type="search" placeholder="Ziel, Ort, Land, Kategorie oder Verfasser suchen …" autocomplete="off" />
+        <select id="categoryFilter">
+          <option value="">Alle Kategorien</option>
+        </select>
+        <select id="difficultyFilter">
+          <option value="">Alle Bewertungen</option>
+          <option value="gruen">Grün – problemlos</option>
+          <option value="gelb">Gelb – aufpassen</option>
+          <option value="rot">Rot – schwierig</option>
+        </select>
+        <button id="newEntryBtn" class="primary">+ Neues Ziel</button>
+      </section>
 
-    <section id="entryList" class="entry-list" aria-live="polite"></section>
+      <section class="quick-actions">
+        <button data-category="Busparkplatz">Busparkplätze</button>
+        <button data-category="Hotel">Hotels</button>
+        <button data-category="Theater">Theater</button>
+        <button data-category="Sehenswürdigkeit">Sehenswürdigkeiten</button>
+        <button id="driversBtn">Fahrer verwalten</button>
+        <button id="exportBtn">Export</button>
+        <label class="import-label">
+          Import
+          <input id="importInput" type="file" accept="application/json" hidden />
+        </label>
+      </section>
+
+      <section id="entryList" class="entry-list" aria-live="polite"></section>
+    </section>
   </main>
 
   <dialog id="entryDialog">

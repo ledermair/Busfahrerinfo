@@ -1,6 +1,6 @@
-const STORAGE_KEY = "ledermair-fahrer-info-v13";
-const DRIVERS_STORAGE_KEY = "ledermair-fahrer-info-drivers-v13";
-const LEGACY_STORAGE_KEYS = ["ledermair-fahrer-info-v12", "ledermair-fahrer-info-v11", "ledermair-fahrer-info-v1"];
+const STORAGE_KEY = "ledermair-fahrer-info-v14";
+const DRIVERS_STORAGE_KEY = "ledermair-fahrer-info-drivers-v14";
+const LEGACY_STORAGE_KEYS = ["ledermair-fahrer-info-v13", "ledermair-fahrer-info-v12", "ledermair-fahrer-info-v11", "ledermair-fahrer-info-v1"];
 
 const starterEntries = [
   {
@@ -98,13 +98,8 @@ function loadDrivers() {
   }
 }
 
-function saveEntries() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-}
-
-function saveDrivers() {
-  localStorage.setItem(DRIVERS_STORAGE_KEY, JSON.stringify(drivers));
-}
+function saveEntries() { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
+function saveDrivers() { localStorage.setItem(DRIVERS_STORAGE_KEY, JSON.stringify(drivers)); }
 
 function normalizeEntry(entry) {
   const normalized = { ...entry };
@@ -134,27 +129,34 @@ function resolveAuthorFromDriverId(driverId) {
 
 function niceValue(value) {
   const map = {
-    gruen: "Grün",
-    gelb: "Gelb",
-    rot: "Rot",
-    vor_ort: "Vor Ort",
-    online: "Onlinebuchung",
-    telefonisch: "Telefonisch",
-    nicht_noetig: "Nicht nötig",
-    unbekannt: "Unbekannt",
-    ja: "Ja",
-    nein: "Nein",
-    teilweise: "Teilweise",
-    keine_bekannt: "Keine bekannt",
-    innenstadt: "Innenstadt",
-    umweltzone: "Umweltzone",
-    enge_zufahrt: "Enge Zufahrt",
-    hoehenbeschraenkung: "Höhenbeschränkung",
-    gewichtsbeschraenkung: "Gewichtsbeschränkung",
-    anmeldung_noetig: "Anmeldung nötig",
+    gruen: "Grün", gelb: "Gelb", rot: "Rot",
+    vor_ort: "Vor Ort", online: "Onlinebuchung", telefonisch: "Telefonisch",
+    nicht_noetig: "Nicht nötig", unbekannt: "Unbekannt",
+    ja: "Ja", nein: "Nein", teilweise: "Teilweise",
+    keine_bekannt: "Keine bekannt", innenstadt: "Innenstadt", umweltzone: "Umweltzone",
+    enge_zufahrt: "Enge Zufahrt", hoehenbeschraenkung: "Höhenbeschränkung",
+    gewichtsbeschraenkung: "Gewichtsbeschränkung", anmeldung_noetig: "Anmeldung nötig",
     sonstiges: "Sonstiges"
   };
   return map[value] || value || "—";
+}
+
+function showHome() {
+  $("homeScreen").classList.remove("hidden");
+  $("directoryScreen").classList.add("hidden");
+  $("searchInput").value = "";
+  $("categoryFilter").value = "";
+  $("difficultyFilter").value = "";
+  renderEntries();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function showDirectory() {
+  $("homeScreen").classList.add("hidden");
+  $("directoryScreen").classList.remove("hidden");
+  renderEntries();
+  setTimeout(() => $("searchInput").focus(), 50);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function updateCategoryFilter() {
@@ -254,7 +256,6 @@ function renderEntries() {
     const parkingUrl = entry.parkingLink || makeParkingMapsSearch(entry);
     if (parkingUrl) parking.href = parkingUrl;
     else parking.classList.add("disabled");
-
     card.querySelector(".edit").addEventListener("click", () => openDialog(entry));
     list.appendChild(node);
   }
@@ -267,26 +268,23 @@ function renderDriversList() {
     list.innerHTML = `<div class="empty-state"><strong>Noch keine Fahrer angelegt.</strong><br>Bitte Name und Handynummer erfassen.</div>`;
     return;
   }
-
-  drivers
-    .sort((a, b) => a.name.localeCompare(b.name, "de"))
-    .forEach(driver => {
-      const item = document.createElement("div");
-      item.className = "driver-list-item";
-      item.innerHTML = `
-        <div>
-          <strong>${escapeHtml(driver.name)}</strong>
-          <div class="hint compact">${escapeHtml(driver.phone)}</div>
-        </div>
-        <div class="driver-actions">
-          <button type="button" class="ghost edit-driver">Bearbeiten</button>
-          <button type="button" class="danger delete-driver">Löschen</button>
-        </div>
-      `;
-      item.querySelector(".edit-driver").addEventListener("click", () => editDriver(driver.id));
-      item.querySelector(".delete-driver").addEventListener("click", () => deleteDriver(driver.id));
-      list.appendChild(item);
-    });
+  drivers.sort((a, b) => a.name.localeCompare(b.name, "de")).forEach(driver => {
+    const item = document.createElement("div");
+    item.className = "driver-list-item";
+    item.innerHTML = `
+      <div>
+        <strong>${escapeHtml(driver.name)}</strong>
+        <div class="hint compact">${escapeHtml(driver.phone)}</div>
+      </div>
+      <div class="driver-actions">
+        <button type="button" class="ghost edit-driver">Bearbeiten</button>
+        <button type="button" class="danger delete-driver">Löschen</button>
+      </div>
+    `;
+    item.querySelector(".edit-driver").addEventListener("click", () => editDriver(driver.id));
+    item.querySelector(".delete-driver").addEventListener("click", () => deleteDriver(driver.id));
+    list.appendChild(item);
+  });
 }
 
 function fullAddress(entry) {
@@ -355,7 +353,6 @@ function handleSubmit(event) {
     alert("Bitte einen Fahrer / Verfasser auswählen.");
     return;
   }
-
   const id = $("entryId").value || crypto.randomUUID();
   const data = { id, updatedAt: new Date().toISOString(), photos: currentPhotos, authorDriverId };
   fields.forEach(f => data[f] = $(f).value.trim());
@@ -402,9 +399,6 @@ function importData(file) {
       if (Array.isArray(imported)) {
         entries = imported.map(e => normalizeEntry({ ...e, id: e.id || crypto.randomUUID() }));
       } else {
-        if (Array.isArray(imported.entries)) {
-          entries = imported.entries.map(e => normalizeEntry({ ...e, id: e.id || crypto.randomUUID() }));
-        }
         if (Array.isArray(imported.drivers)) {
           drivers = imported.drivers.map(d => ({
             id: d.id || crypto.randomUUID(),
@@ -413,6 +407,9 @@ function importData(file) {
             updatedAt: d.updatedAt || new Date().toISOString()
           }));
           saveDrivers();
+        }
+        if (Array.isArray(imported.entries)) {
+          entries = imported.entries.map(e => normalizeEntry({ ...e, id: e.id || crypto.randomUUID() }));
         }
       }
       saveEntries();
@@ -604,9 +601,7 @@ function openDriversDialog() {
   $("driversDialog").showModal();
 }
 
-function closeDriversDialog() {
-  $("driversDialog").close();
-}
+function closeDriversDialog() { $("driversDialog").close(); }
 
 function resetDriverForm() {
   $("driverId").value = "";
@@ -713,7 +708,7 @@ function stopSpeechInput(stopRecognition = true) {
   }
   isRecording = false;
   $("voiceDriverNotesBtn").textContent = "🎤 Spracheingabe starten";
-  if ($("voiceStatus").textContent === "Spracheingabe läuft …") {
+  if ($("voiceStatus") && $("voiceStatus").textContent === "Spracheingabe läuft …") {
     $("voiceStatus").textContent = "Spracheingabe beendet.";
   }
 }
@@ -724,7 +719,10 @@ function escapeHtml(str) {
   }[c]));
 }
 
-// Event wiring
+$("homeBtn").addEventListener("click", showHome);
+$("showSearchBtn").addEventListener("click", showDirectory);
+$("homeNewEntryBtn").addEventListener("click", () => openDialog());
+$("homeDriversBtn").addEventListener("click", openDriversDialog);
 $("newEntryBtn").addEventListener("click", () => openDialog());
 $("closeDialogBtn").addEventListener("click", closeDialog);
 $("entryForm").addEventListener("submit", handleSubmit);
@@ -750,8 +748,10 @@ $("saveDriverBtn").addEventListener("click", saveDriverFromForm);
 $("resetDriverBtn").addEventListener("click", resetDriverForm);
 $("authorDriverId").addEventListener("change", updateSelectedDriverInfo);
 $("voiceDriverNotesBtn").addEventListener("click", startSpeechInput);
+
 document.querySelectorAll(".quick-actions button[data-category]").forEach(button => {
   button.addEventListener("click", () => {
+    showDirectory();
     $("categoryFilter").value = button.dataset.category;
     renderEntries();
   });

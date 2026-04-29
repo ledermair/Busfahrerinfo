@@ -1,20 +1,25 @@
-# Ledermair Fahrer-Info v1.3
+# Ledermair Fahrer-Info v1.4
 
 Neue Punkte in dieser Version:
 
-- echtes Ledermair-Logo im Header
-- Fahrer zentral pflegbar (Name + Handynummer)
-- Fahrer-Auswahl im Eintrag per Dropdown
-- Verfasser wird automatisch aus dem Fahrer-Stamm übernommen
-- Spracheingabe bei Fahrerhinweisen (Browser-abhängig, z. B. Chrome/Edge auf vielen Geräten)
-- frühere Funktionen bleiben enthalten:
-  - GPS-Erfassung für Ziel und Busparkplatz
-  - PLZ / Ort getrennt
-  - Ort aus PLZ ermitteln
-  - Google-Maps-Link aus Adresse oder GPS erzeugen
-  - Adressprüfung über Google Maps
-  - Foto-Upload, Thumbnail, Popup-Vergrößerung
-  - Export / Import
+- Logo im Header ist jetzt der Homebutton
+- Startseite zeigt keine Ziele mehr an
+- Ziele erscheinen erst nach Klick auf „Ziele suchen“ oder über einen Kategorie-Filter
+- Startseite mit drei Aktionen: Ziele suchen, neues Ziel erfassen, Fahrer verwalten
+- Fahrer zentral pflegbar mit Name und Handynummer
+- Fahrer/Verfasser im Zieleintrag per Dropdown
+- Spracheingabe beim Fahrerhinweis
+- Ledermair-Logo eingebunden
+
+Weiterhin enthalten:
+
+- GPS-Erfassung für Ziel und Busparkplatz
+- automatischer Google-Maps-Link
+- PLZ und Ort getrennt
+- Ort aus PLZ holen
+- Adressprüfung über Google Maps
+- Fotos mit Thumbnail und Vergrößerung im Popup
+- Export / Import
 
 Hinweis:
-Diese Version speichert weiterhin lokal im Browser. Für den Mehrbenutzerbetrieb sollte im nächsten Schritt ein zentrales Backend mit Login und MariaDB ergänzt werden.
+Diese Version speichert lokal im Browser. Für den echten Mehrbenutzerbetrieb braucht es als nächsten Schritt ein Backend mit Login und zentraler MariaDB.

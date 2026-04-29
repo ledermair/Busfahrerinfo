@@ -1,4 +1,4 @@
-const CACHE_NAME = "ledermair-fahrer-info-v13";
+const CACHE_NAME = "ledermair-fahrer-info-v14";
 const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.json", "./icon.svg", "./logo.png"];
 
 self.addEventListener("install", event => {
